@@ -8,9 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zerobase.com.ecommerce.components.MailComponents;
 import zerobase.com.ecommerce.domain.constant.Status;
 import zerobase.com.ecommerce.domain.token.TokenProvider;
-import zerobase.com.ecommerce.domain.user.dto.LoginDto;
-import zerobase.com.ecommerce.domain.user.dto.RePasswordDto;
-import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
+import zerobase.com.ecommerce.domain.user.dto.*;
 import zerobase.com.ecommerce.domain.user.email.entity.EmailEntity;
 import zerobase.com.ecommerce.domain.user.email.repository.EmailRepository;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
@@ -19,6 +17,7 @@ import zerobase.com.ecommerce.domain.user.repository.UserRepository;
 import zerobase.com.ecommerce.domain.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +31,16 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+
+    /**
+     * 사용자 조회 헬퍼 메서드 (유효성 검증 포함)
+     * @param userId 사용자 ID
+     * @return UsersEntity
+     */
+    private UserEntity findUserByIdOrThrow(String userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("해당 ID가 없습니다."));
+    }
 
     //회원가입
     @Override
@@ -107,27 +116,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginDto login(LoginDto loginDto) {
         // 1.먼저 사용자 찾기
-        UserEntity user = userRepository.findByUserId(loginDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("해당 ID가 없습니다."));
+        UserEntity userId = findUserByIdOrThrow(loginDto.getUserId());
 
         // 2.비밀번호 확인
-        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(loginDto.getPassword(), userId.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
         // 3.사용자 상태 확인
-        if (user.getUserStatus() == Status.STOP){
+        if (userId.getUserStatus() == Status.STOP){
             throw new RuntimeException("해당 아이디가 탈퇴한 회원이거나 정지된 회원입니다");
         }
 
         //4. 이메일 인증 확인
-        EmailEntity emailAuth = emailRepository.findByEmailEmail(user.getEmail());
+        EmailEntity emailAuth = emailRepository.findByEmailEmail(userId.getEmail());
         if (!emailAuth.isEmailAuthYn()){
             throw new RuntimeException("가입하신 이메일로 인증을 완료해주세요.");
         }
 
         // 5.로그인 성공 처리
-        LoginDto responseDto = userMapper.toLoginDto(user);
+        LoginDto responseDto = userMapper.toLoginDto(userId);
         String accessToken = tokenProvider.generateAccessToken(responseDto);
         responseDto.setToken(accessToken);
         return responseDto;
@@ -136,16 +144,10 @@ public class UserServiceImpl implements UserService {
     //비밀번호 재설정
     @Override
     public String rePassword(RePasswordDto rePasswordDto) {
-        // 1.사용자확인 (userId로 유효성검증)
-        Optional<UserEntity> optionalUser = userRepository
-                .findByUserId(rePasswordDto.getUserId());
-
-        //유효성 검증: user가 존재하는지 확인
-        UserEntity user = optionalUser.orElseThrow(()->
-                new RuntimeException("해당 사용자를 찾을 수 없습니다."));
+        UserEntity userId = findUserByIdOrThrow(rePasswordDto.getUserId());
 
         // 2.이메일 검증
-        if (!rePasswordDto.getEmail().equals(user.getEmail())){
+        if (!rePasswordDto.getEmail().equals(userId.getEmail())){
             throw new RuntimeException("이메일이 일치하지 않습니다.");
         }
 
@@ -153,8 +155,39 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(rePasswordDto.getRePassword());
 
         // 4.비밀번호 저장
-        user.setPassword(encodedPassword);
-        userRepository.save(user);
+        userId.setPassword(encodedPassword);
+        userRepository.save(userId);
         return "success";
+    }
+    //회원 탈퇴 및 정지
+    @Override
+    public DeleteDto userDelete(String userId) {
+        UserEntity users = findUserByIdOrThrow(userId);
+
+        // 사용자에 해당하는 이메일 테이블 삭제
+        Optional<EmailEntity> optionalEmail = emailRepository.findByEmail(users);
+        if (optionalEmail.isEmpty()){
+            throw new RuntimeException("해당 ID를 찾을 수 없습니다.");
+        }
+
+        // 사용자 상태 변경
+        users.setUserStatus(Status.STOP);
+        UserEntity saveUser = userRepository.save(users);
+
+        return new DeleteDto(saveUser.getUserId(),saveUser.getRole());
+    }
+
+    //내정보 가져오기
+    @Override
+    public MyInfoDto myInfo(String userId) {
+        UserEntity userEntity = findUserByIdOrThrow(userId);
+
+        // Entity를 DTO로 변환
+        return MyInfoDto.builder()
+                .userId(userEntity.getUserId())
+                .email(userEntity.getEmail())
+                .phone(userEntity.getPhone())
+                .createAt(userEntity.getCreateAt())
+                .build();
     }
 }

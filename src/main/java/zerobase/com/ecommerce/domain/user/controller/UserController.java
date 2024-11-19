@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import zerobase.com.ecommerce.domain.user.dto.LoginDto;
-import zerobase.com.ecommerce.domain.user.dto.RePasswordDto;
-import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
+import zerobase.com.ecommerce.domain.user.dto.*;
 import zerobase.com.ecommerce.domain.user.service.UserService;
 
 import java.util.Map;
@@ -61,4 +59,20 @@ public class UserController {
     public ResponseEntity<String> rePassword(@RequestBody RePasswordDto rePasswordDto){
         return ResponseEntity.ok().body(userService.rePassword(rePasswordDto));
     }
+
+    //회원 탈퇴 및 정지
+    @DeleteMapping("delete")
+    public ResponseEntity<DeleteDto> delete(@RequestParam(name = "userId")
+                                                String userId){
+        return ResponseEntity.ok().body(userService.userDelete(userId));
+    }
+
+    //내 정보 가져오기
+    @GetMapping("myinfo")
+    public ResponseEntity<MyInfoDto> myInfo(@RequestParam("userId") String userId){
+        return ResponseEntity.ok().body(userService.myInfo(userId));
+    }
+
+
+
 }

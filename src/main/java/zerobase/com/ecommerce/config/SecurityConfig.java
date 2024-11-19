@@ -32,6 +32,8 @@ public class SecurityConfig {
                                 "/user/register",
                                 "/user/login",
                                 "/user/repassword",
+                                "/user/delete",
+                                "/user/myinfo",
                                 "/user/email-auth",
                                 "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
