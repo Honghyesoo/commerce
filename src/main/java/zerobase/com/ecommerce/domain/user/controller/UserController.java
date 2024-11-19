@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zerobase.com.ecommerce.domain.user.dto.LoginDto;
+import zerobase.com.ecommerce.domain.user.dto.RePasswordDto;
 import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
 import zerobase.com.ecommerce.domain.user.service.UserService;
 
@@ -54,5 +55,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인 실패 " + e.getMessage());
         }
+    }
+    //비밀번호 재설정
+    @PostMapping("repassword")
+    public ResponseEntity<String> rePassword(@RequestBody RePasswordDto rePasswordDto){
+        return ResponseEntity.ok().body(userService.rePassword(rePasswordDto));
     }
 }

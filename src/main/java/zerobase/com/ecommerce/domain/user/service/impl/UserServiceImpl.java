@@ -9,6 +9,7 @@ import zerobase.com.ecommerce.components.MailComponents;
 import zerobase.com.ecommerce.domain.constant.Status;
 import zerobase.com.ecommerce.domain.token.TokenProvider;
 import zerobase.com.ecommerce.domain.user.dto.LoginDto;
+import zerobase.com.ecommerce.domain.user.dto.RePasswordDto;
 import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
 import zerobase.com.ecommerce.domain.user.email.entity.EmailEntity;
 import zerobase.com.ecommerce.domain.user.email.repository.EmailRepository;
@@ -130,5 +131,30 @@ public class UserServiceImpl implements UserService {
         String accessToken = tokenProvider.generateAccessToken(responseDto);
         responseDto.setToken(accessToken);
         return responseDto;
+    }
+
+    //비밀번호 재설정
+    @Override
+    public String rePassword(RePasswordDto rePasswordDto) {
+        // 1.사용자확인 (userId로 유효성검증)
+        Optional<UserEntity> optionalUser = userRepository
+                .findByUserId(rePasswordDto.getUserId());
+
+        //유효성 검증: user가 존재하는지 확인
+        UserEntity user = optionalUser.orElseThrow(()->
+                new RuntimeException("해당 사용자를 찾을 수 없습니다."));
+
+        // 2.이메일 검증
+        if (!rePasswordDto.getEmail().equals(user.getEmail())){
+            throw new RuntimeException("이메일이 일치하지 않습니다.");
+        }
+
+        // 3.비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(rePasswordDto.getRePassword());
+
+        // 4.비밀번호 저장
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return "success";
     }
 }
