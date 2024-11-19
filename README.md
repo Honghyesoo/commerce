@@ -9,14 +9,17 @@
 <img src="https://img.shields.io/badge/Postman-FF6C37?style=flat-square&logo=Postman&logoColor=white"/></a>
 
 ## 공통
-- [ ] 회원가입
+- [x] 회원가입
  - 모든 사용자는 회원 가입 시 기본적으로 USER 권한(일반권한)/ 판매자로 승인 받을시 (셀러권한)을 지닌다.
-- [ ] 로그인 JWT 토큰 발행
-- [ ] security 보안강화
+ - 비밀번호는 security에서 제공하는 passwordEncoder 사용하여 보안 강화 
+- [x] 비밀번호 재설정 
+  - 이메일 검증 후 비밀번호 재설정 
+- [x] 로그인 JWT 토큰 발행
+- [x] security 보안강화
  - 각 요청 마다 토큰으로 유효성 판단 후 응답 
 
 ### 이메일
-- [ ] 회원가입 후 인증메일 전송
+- [x] 회원가입 후 인증메일 전송
  - 이메일 인증 해야만 로그인을 할 수 있다.
 - [ ] 주문내역 이메일로 발송하기
 
