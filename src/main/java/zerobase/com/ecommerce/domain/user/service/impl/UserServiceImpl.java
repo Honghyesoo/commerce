@@ -2,10 +2,13 @@ package zerobase.com.ecommerce.domain.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase.com.ecommerce.components.MailComponents;
 import zerobase.com.ecommerce.domain.constant.Status;
+import zerobase.com.ecommerce.domain.token.TokenProvider;
+import zerobase.com.ecommerce.domain.user.dto.LoginDto;
 import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
 import zerobase.com.ecommerce.domain.user.email.entity.EmailEntity;
 import zerobase.com.ecommerce.domain.user.email.repository.EmailRepository;
@@ -26,16 +29,21 @@ public class UserServiceImpl implements UserService {
     private final EmailRepository emailRepository;
     private final MailComponents mailComponents;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
 
+    //회원가입
     @Override
     public RegisterDto register(RegisterDto registerDto) {
         //중복체크
         Optional<UserEntity> optionalUserEntity = userRepository.findByUserId(registerDto.getUserId());
         if (optionalUserEntity.isPresent()){
             UserEntity existingUser = optionalUserEntity.get();
+
             if (existingUser.getUserStatus() == Status.STOP){
                 log.info("회원탈퇴한 ID 입니다. 다른 ID를 사용해 주세요. ");
                 throw new RuntimeException("회원탈퇴한 ID 입니다. 다른 ID를 사용해 주세요.");
+
             }else {
                 log.info("이미 존재하는 아이디 입니다.");
                 throw new RuntimeException("이미 존재하는 아이디 입니다.");
@@ -92,5 +100,35 @@ public class UserServiceImpl implements UserService {
 
         return true;
 
+    }
+
+    //로그인
+    @Override
+    public LoginDto login(LoginDto loginDto) {
+        // 1.먼저 사용자 찾기
+        UserEntity user = userRepository.findByUserId(loginDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("해당 ID가 없습니다."));
+
+        // 2.비밀번호 확인
+        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())){
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 3.사용자 상태 확인
+        if (user.getUserStatus() == Status.STOP){
+            throw new RuntimeException("해당 아이디가 탈퇴한 회원이거나 정지된 회원입니다");
+        }
+
+        //4. 이메일 인증 확인
+        EmailEntity emailAuth = emailRepository.findByEmailEmail(user.getEmail());
+        if (!emailAuth.isEmailAuthYn()){
+            throw new RuntimeException("가입하신 이메일로 인증을 완료해주세요.");
+        }
+
+        // 5.로그인 성공 처리
+        LoginDto responseDto = userMapper.toLoginDto(user);
+        String accessToken = tokenProvider.generateAccessToken(responseDto);
+        responseDto.setToken(accessToken);
+        return responseDto;
     }
 }
