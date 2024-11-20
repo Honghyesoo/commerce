@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase.com.ecommerce.components.MailComponents;
 import zerobase.com.ecommerce.domain.constant.Status;
+import zerobase.com.ecommerce.domain.user.exception.UserFindService;
 import zerobase.com.ecommerce.domain.token.TokenProvider;
 import zerobase.com.ecommerce.domain.user.dto.*;
 import zerobase.com.ecommerce.domain.user.email.entity.EmailEntity;
@@ -17,7 +18,6 @@ import zerobase.com.ecommerce.domain.user.repository.UserRepository;
 import zerobase.com.ecommerce.domain.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,16 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-
-    /**
-     * 사용자 조회 헬퍼 메서드 (유효성 검증 포함)
-     * @param userId 사용자 ID
-     * @return UsersEntity
-     */
-    private UserEntity findUserByIdOrThrow(String userId) {
-        return userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("해당 ID가 없습니다."));
-    }
+    private final UserFindService userFindService;
 
     //회원가입
     @Override
@@ -116,7 +107,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginDto login(LoginDto loginDto) {
         // 1.먼저 사용자 찾기
-        UserEntity userId = findUserByIdOrThrow(loginDto.getUserId());
+        UserEntity userId = userFindService.findUserByIdOrThrow(loginDto.getUserId());
 
         // 2.비밀번호 확인
         if (!passwordEncoder.matches(loginDto.getPassword(), userId.getPassword())){
@@ -144,7 +135,8 @@ public class UserServiceImpl implements UserService {
     //비밀번호 재설정
     @Override
     public String rePassword(RePasswordDto rePasswordDto) {
-        UserEntity userId = findUserByIdOrThrow(rePasswordDto.getUserId());
+        UserEntity userId = userFindService.findUserByIdOrThrow(rePasswordDto.getUserId());
+
 
         // 2.이메일 검증
         if (!rePasswordDto.getEmail().equals(userId.getEmail())){
@@ -162,7 +154,7 @@ public class UserServiceImpl implements UserService {
     //회원 탈퇴 및 정지
     @Override
     public DeleteDto userDelete(String userId) {
-        UserEntity users = findUserByIdOrThrow(userId);
+        UserEntity users = userFindService.findUserByIdOrThrow(userId);
 
         // 사용자에 해당하는 이메일 테이블 삭제
         Optional<EmailEntity> optionalEmail = emailRepository.findByEmail(users);
@@ -180,7 +172,7 @@ public class UserServiceImpl implements UserService {
     //내정보 가져오기
     @Override
     public MyInfoDto myInfo(String userId) {
-        UserEntity userEntity = findUserByIdOrThrow(userId);
+        UserEntity userEntity = userFindService.findUserByIdOrThrow(userId);
 
         // Entity를 DTO로 변환
         return MyInfoDto.builder()

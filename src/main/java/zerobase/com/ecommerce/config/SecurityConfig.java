@@ -31,10 +31,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/user/register",
                                 "/user/login",
-                                "/user/repassword",
-                                "/user/delete",
-                                "/user/myinfo",
                                 "/user/email-auth",
+                                "/product/list",
+                                "/product/detail",
                                 "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
