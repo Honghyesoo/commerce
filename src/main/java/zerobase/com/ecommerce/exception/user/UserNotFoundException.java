@@ -1,6 +1,6 @@
-package zerobase.com.ecommerce.domain.user.exception;
+package zerobase.com.ecommerce.exception.user;
 
-import zerobase.com.ecommerce.domain.exception.CommerceException;
+import zerobase.com.ecommerce.exception.global.CommerceException;
 
 public class UserNotFoundException extends CommerceException {
     public UserNotFoundException(String message) {

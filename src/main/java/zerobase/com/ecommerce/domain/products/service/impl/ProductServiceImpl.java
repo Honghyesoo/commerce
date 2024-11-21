@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import zerobase.com.ecommerce.domain.constant.Role;
 import zerobase.com.ecommerce.domain.products.dto.ProductListDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductUpdateDto;
-import zerobase.com.ecommerce.domain.products.exception.ProductFindService;
-import zerobase.com.ecommerce.domain.user.exception.UserFindService;
+import zerobase.com.ecommerce.domain.products.service.ProductFindService;
+import zerobase.com.ecommerce.domain.user.service.UserFindService;
 import zerobase.com.ecommerce.domain.products.dto.ProductRegisterDto;
 import zerobase.com.ecommerce.domain.products.entity.ProductsEntity;
 import zerobase.com.ecommerce.domain.products.mapper.ProductMapper;
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
         products.setProduct(updateDto.getProduct());
         products.setProductImg(updateDto.getProductImg());
         products.setProductsContents(updateDto.getProductsContents());
-        products.setProductsAmount(updateDto.getProductsAmount());
+        products.setPrice(updateDto.getPrice());
 
         //변경된 상품 정보 저장
         ProductsEntity updatedProduct = productRepository.save(products);
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
                 .product(updatedProduct.getProduct())
                 .productImg(updateDto.getProductImg())
                 .productsContents(updateDto.getProductsContents())
-                .productsAmount(updateDto.getProductsAmount())
+                .price(updateDto.getPrice())
                 .build();
     }
 

@@ -16,7 +16,7 @@ public class ProductMapper {
                 .product(productRegisterDto.getProduct())
                 .productImg(productRegisterDto.getProductImg())
                 .productsContents(productRegisterDto.getProductsContents())
-                .productsAmount(productRegisterDto.getProductsAmount())
+                .price(productRegisterDto.getPrice())
                 .build();
     }
 
@@ -27,7 +27,7 @@ public class ProductMapper {
                 .product(productsEntity.getProduct())
                 .productImg(productsEntity.getProductImg())
                 .productsContents(productsEntity.getProductsContents())
-                .productsAmount(productsEntity.getProductsAmount())
+                .price(productsEntity.getPrice())
                 .build();
     }
 
@@ -38,7 +38,7 @@ public class ProductMapper {
         dto.setProduct(product.getProduct());
         dto.setProductImg(product.getProductImg());
         dto.setProductsContents(product.getProductsContents());
-        dto.setProductsAmount(product.getProductsAmount());
+        dto.setPrice(product.getPrice());
         return dto;
     }
 

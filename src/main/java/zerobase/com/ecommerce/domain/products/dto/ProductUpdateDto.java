@@ -13,6 +13,6 @@ public class ProductUpdateDto {
     private String product;
     private String productImg;
     private String productsContents;
-    private String productsAmount;
+    private int price;
     private Role role;
 }

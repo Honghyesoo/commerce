@@ -1,6 +1,6 @@
-package zerobase.com.ecommerce.domain.products.exception;
+package zerobase.com.ecommerce.exception.product;
 
-import zerobase.com.ecommerce.domain.exception.CommerceException;
+import zerobase.com.ecommerce.exception.global.CommerceException;
 
 public class ProductNotFoundException extends CommerceException {
     public ProductNotFoundException(String message){

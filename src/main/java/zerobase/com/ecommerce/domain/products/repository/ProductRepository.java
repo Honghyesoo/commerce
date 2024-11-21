@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import zerobase.com.ecommerce.domain.cart.entity.CartEntity;
 import zerobase.com.ecommerce.domain.products.entity.ProductsEntity;
 
 import java.util.List;
@@ -20,5 +21,6 @@ public interface ProductRepository extends JpaRepository<ProductsEntity,Long> {
            "WHERE p.product LIKE %:keyword% " +
            "OR p.productsContents LIKE %:keyword%")
    List<ProductsEntity> searchByKeyword(@Param("keyword") String keyword);
+
 }
 
