@@ -11,4 +11,5 @@ public class ProductListDto {
     private String productImg;
     private String productsContents;
     private int price;
+    private int SalesCount;
 }

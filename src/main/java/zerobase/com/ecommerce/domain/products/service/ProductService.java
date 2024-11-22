@@ -1,5 +1,6 @@
 package zerobase.com.ecommerce.domain.products.service;
 
+import zerobase.com.ecommerce.domain.constant.SortOption;
 import zerobase.com.ecommerce.domain.products.dto.ProductListDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductRegisterDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductUpdateDto;
@@ -13,7 +14,7 @@ public interface ProductService {
 
     ProductUpdateDto update(ProductUpdateDto updateDto);
 
-    List<ProductListDto> list(String keyword);
+    List<ProductListDto> list(String keyword, SortOption sortOption);
 
     ProductListDto detail(Long id);
 }

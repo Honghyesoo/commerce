@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import zerobase.com.ecommerce.domain.constant.Role;
+import zerobase.com.ecommerce.domain.constant.SortOption;
 import zerobase.com.ecommerce.domain.products.dto.ProductListDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductUpdateDto;
 import zerobase.com.ecommerce.domain.products.service.ProductFindService;
@@ -14,10 +15,13 @@ import zerobase.com.ecommerce.domain.products.mapper.ProductMapper;
 import zerobase.com.ecommerce.domain.products.repository.ProductRepository;
 import zerobase.com.ecommerce.domain.products.service.ProductService;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
+import zerobase.com.ecommerce.exception.product.ProductAlreadyExistsException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -39,13 +43,13 @@ public class ProductServiceImpl implements ProductService {
         Optional<ProductsEntity> optionalProducts =
                 productRepository.findByProduct(productRegisterDto.getProduct());
 
-        if (optionalProducts.isPresent()){
-            log.info("같은 상품이 존재합니다 ");
-            throw new RuntimeException("같은 상품이 존재합니다.");
+        if (optionalProducts.isPresent()) {
+            throw new ProductAlreadyExistsException(
+                    "동일한 상품이 이미 존재합니다: " + productRegisterDto.getProduct());
         }
 
         // DTO -> Entity 변환 및 저장
-        ProductsEntity productsEntity = productMapper.toProductsEntity(productRegisterDto,user);
+        ProductsEntity productsEntity = productMapper.toProductsEntity(productRegisterDto, user);
         ProductsEntity saveEntity = productRepository.save(productsEntity);
         return productMapper.toProductDto(saveEntity);
     }
@@ -97,35 +101,45 @@ public class ProductServiceImpl implements ProductService {
 
     //상품 목록
     @Override
-    public List<ProductListDto> list(String keyword) {
+    public List<ProductListDto> list(String keyword, SortOption sortOption) {
         List<ProductsEntity> products;
 
-        // 키워드가 있는 경우 검색, 없으면 전체 목록 반환
+        // 키워드 검색 또는 전체 목록 조회
         if (keyword != null && !keyword.trim().isEmpty()) {
             products = productRepository.searchByKeyword(keyword.trim());
         } else {
             products = productRepository.findAll();
         }
 
+        // 정렬 적용
+        switch (sortOption) {
+            case LATEST:
+            default:
+                products.sort(Comparator.comparing(ProductsEntity::getCreateAt).reversed());
+                break;
+            case SALES:
+                products.sort(Comparator.comparing(ProductsEntity::getSalesCount).reversed());
+                break;
+        }
 
+        // ProductListDto로 변환
         return products.stream()
                 .map(productMapper::toProductListDto)
                 .collect(Collectors.toList());
     }
 
-    //상품 상세보기
-    @Override
-    public ProductListDto detail(Long id) {
-        Optional<ProductsEntity> optionalProducts = productRepository.findById(id);
 
-        //상품 존재 여부 확인
-        ProductsEntity products = productRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("해당 상품이 없습니다."));
+//상품 상세보기
+@Override
+public ProductListDto detail(Long id) {
+    Optional<ProductsEntity> optionalProducts = productRepository.findById(id);
 
-        return productMapper.toProductListDto(products);
+    //상품 존재 여부 확인
+    ProductsEntity products = productRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("해당 상품이 없습니다."));
 
-    }
+    return productMapper.toProductListDto(products);
 
-
+}
 
 }

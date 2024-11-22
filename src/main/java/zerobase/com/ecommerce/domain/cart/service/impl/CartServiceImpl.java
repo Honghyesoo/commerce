@@ -1,6 +1,7 @@
 package zerobase.com.ecommerce.domain.cart.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase.com.ecommerce.domain.cart.dto.CartDto;
@@ -10,8 +11,10 @@ import zerobase.com.ecommerce.domain.cart.repository.CartRepository;
 import zerobase.com.ecommerce.domain.cart.service.CartService;
 import zerobase.com.ecommerce.domain.products.entity.ProductsEntity;
 import zerobase.com.ecommerce.domain.products.repository.ProductRepository;
+import zerobase.com.ecommerce.domain.products.service.ProductFindService;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 import zerobase.com.ecommerce.domain.user.service.UserFindService;
+import zerobase.com.ecommerce.exception.global.CommerceException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,7 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
+    private final ProductFindService productFindService;
 
     //장바구니 등록
     @Override
@@ -37,7 +41,7 @@ public class CartServiceImpl implements CartService {
 
         // 상품 조회
         ProductsEntity product = productRepository.findById(cartDto.getProduct())
-                .orElseThrow(() -> new RuntimeException("해당 상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new CommerceException("해당 상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND));
 
         // 이미 해당 유저가 해당 상품을 장바구니에 담았는지 확인
         Optional<CartEntity> existingCart = cartRepository.findByUserId_UserIdAndProduct_Id(

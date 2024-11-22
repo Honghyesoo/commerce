@@ -14,7 +14,7 @@ public class ProductFindService {
     public ProductsEntity findByProductOrThrow(String products) {
         return productRepository.findByProduct(products)
                 .orElseThrow(() ->
-                        new ProductNotFoundException("해당 상점을 찾을 수 없습니다: " + products)
+                        new ProductNotFoundException("해당 상품을 찾을 수 없습니다: " + products)
                 );
     }
 }

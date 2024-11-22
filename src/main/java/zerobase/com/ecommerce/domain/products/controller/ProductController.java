@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zerobase.com.ecommerce.domain.constant.SortOption;
 import zerobase.com.ecommerce.domain.products.dto.ProductListDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductRegisterDto;
 import zerobase.com.ecommerce.domain.products.dto.ProductUpdateDto;
@@ -48,9 +49,11 @@ public class ProductController {
 
     // 상점 목록
     @GetMapping("list")
-    public ResponseEntity<List<ProductListDto>> list(@RequestParam(value = "keyword", required = false)
-                                                         String keyword) {
-        return ResponseEntity.ok(productService.list(keyword));
+    public ResponseEntity<List<ProductListDto>> list(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "sort", defaultValue = "SALES") SortOption sortOption
+    ) {
+        return ResponseEntity.ok(productService.list(keyword, sortOption));
     }
 
     // 상점 상세보기

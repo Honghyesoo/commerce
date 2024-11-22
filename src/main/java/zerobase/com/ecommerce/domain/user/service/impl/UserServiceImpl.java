@@ -2,6 +2,7 @@ package zerobase.com.ecommerce.domain.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 import zerobase.com.ecommerce.domain.user.mapper.UserMapper;
 import zerobase.com.ecommerce.domain.user.repository.UserRepository;
 import zerobase.com.ecommerce.domain.user.service.UserService;
+import zerobase.com.ecommerce.exception.global.CommerceException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -45,7 +47,7 @@ public class UserServiceImpl implements UserService {
                     : "이미 존재하는 아이디 입니다.";
 
             log.info(message);
-            throw new RuntimeException(message);
+            throw new CommerceException(message, HttpStatus.BAD_REQUEST);
         });
 
         // DTO -> Entity 변환 및 저장

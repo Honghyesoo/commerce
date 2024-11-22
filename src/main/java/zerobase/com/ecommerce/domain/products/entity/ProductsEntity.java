@@ -25,5 +25,11 @@ public class ProductsEntity extends BaseEntity {
     private String productImg; // 상품 이미지
     private String productsContents; // 상품소개
     private int price; //상품 금액
+    private int salesCount; // 판매누적량
+
+    //판매 누적합
+    public void increaseSalesCount(int quantity) {
+        this.salesCount += quantity;
+    }
 
 }
