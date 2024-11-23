@@ -1,13 +1,14 @@
 package zerobase.com.ecommerce.exception.global;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import zerobase.com.ecommerce.exception.review.DuplicateReviewException;
+import zerobase.com.ecommerce.exception.review.ProductNotPurchasedException;
+import zerobase.com.ecommerce.exception.user.UserNotFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -15,7 +16,13 @@ public class GlobalException {
     @ExceptionHandler(CommerceException.class)
     public ResponseEntity<ErrorResponse> handleCommerceException(
             CommerceException e, WebRequest request) {
-        log.error("CommerceException: ", e);
+        if (e instanceof ProductNotPurchasedException) {
+            log.error("ProductNotPurchasedException: ", e);
+        } else if (e instanceof DuplicateReviewException) {
+            log.error("DuplicateReviewException: ", e);
+        } else {
+            log.error("CommerceException: ", e);
+        }
         ErrorResponse response = ErrorResponse.of(
                 e.getStatus(),
                 e.getMessage(),
@@ -34,6 +41,18 @@ public class GlobalException {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(
+            UserNotFoundException e, WebRequest request) {
+        log.error("UserNotFoundException: ", e);
+        ErrorResponse response = ErrorResponse.of(
+                e.getStatus(),
+                e.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(response, e.getStatus());
     }
 
     @ExceptionHandler(Exception.class)

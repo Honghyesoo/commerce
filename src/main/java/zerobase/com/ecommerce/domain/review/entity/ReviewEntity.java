@@ -1,18 +1,19 @@
-package zerobase.com.ecommerce.domain.order.entity;
+package zerobase.com.ecommerce.domain.review.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import zerobase.com.ecommerce.domain.baseEntity.BaseEntity;
 import zerobase.com.ecommerce.domain.products.entity.ProductsEntity;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Entity
-@Table(name ="orders")
-public class OrderEntity {
+@Table(name = "reviews")
+public class ReviewEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,11 +26,6 @@ public class OrderEntity {
     @JoinColumn(name = "product")
     private ProductsEntity product;
 
-    private String email;
-    private String phone;
-    private String address;
-    private int quantity;
-    private int totalPrice;
-    private int SalesCount;
+    private String contents; // 리뷰 내용
 
 }
