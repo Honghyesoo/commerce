@@ -1,5 +1,7 @@
 package zerobase.com.ecommerce.domain.review.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import zerobase.com.ecommerce.domain.products.entity.ProductsEntity;
@@ -14,5 +16,5 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity,Long> {
     boolean existsByUserIdAndProduct(UserEntity user, ProductsEntity product);
 
 
-    List<ReviewEntity> findAllByProduct_ProductOrderByCreateAtDesc(String product);
+    Page<ReviewEntity> findAllByProduct_ProductOrderByCreateAtDesc(String product, Pageable pageable);
 }

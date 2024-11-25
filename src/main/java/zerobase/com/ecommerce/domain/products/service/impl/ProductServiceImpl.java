@@ -37,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductRegisterDto register(ProductRegisterDto productRegisterDto) {
         // 사용자 ID가 있는지
         UserEntity user = userFindService.findUserByIdOrThrow(productRegisterDto.getUserId());
+
         // 사용자 권한 확인
         userFindService.checkUserRole(productRegisterDto.getUserId(), Role.SELLER);
 

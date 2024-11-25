@@ -63,9 +63,6 @@ public class OrderServiceImpl implements OrderService {
                 .id(saveOrder.getId())
                 .userId(saveOrder.getUserId().getUserId())
                 .product(saveOrder.getProduct().getProduct())
-                .email(saveOrder.getEmail())
-                .phone(saveOrder.getPhone())
-                .address(saveOrder.getAddress())
                 .quantity(saveOrder.getQuantity())
                 .totalPrice(saveOrder.getTotalPrice())
                 .build();

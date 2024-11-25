@@ -14,11 +14,9 @@ import java.util.function.LongFunction;
 public class OrderDto {
     private Long id;
     private String userId;
-    private String product;
-    private String email;
-    private String phone;
-    private String address;
     private int quantity;
+    private String product;
+    private String address;
     private int totalPrice;
     private int SalesCount;
 }

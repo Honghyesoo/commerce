@@ -67,7 +67,7 @@ public class UserController {
         return ResponseEntity.ok().body(userService.userDelete(userId));
     }
 
-    //내 정보 가져오기
+    // 내 정보 가져오기
     @GetMapping("myinfo")
     public ResponseEntity<MyInfoDto> myInfo(@RequestParam("userId") String userId){
         return ResponseEntity.ok().body(userService.myInfo(userId));
