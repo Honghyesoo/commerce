@@ -7,7 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegisterDto {
+public class OrderUpdateDto {
+    private Long id;
     private String userId;
     private String product;
     private String contents;

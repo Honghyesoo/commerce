@@ -1,9 +1,9 @@
 package zerobase.com.ecommerce.domain.cart.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import zerobase.com.ecommerce.components.SecurityUtil;
 import zerobase.com.ecommerce.domain.cart.dto.CartDto;
 import zerobase.com.ecommerce.domain.cart.entity.CartEntity;
 import zerobase.com.ecommerce.domain.cart.mapper.CartMapper;
@@ -15,6 +15,7 @@ import zerobase.com.ecommerce.domain.products.service.ProductFindService;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 import zerobase.com.ecommerce.domain.user.service.UserFindService;
 import zerobase.com.ecommerce.exception.global.CommerceException;
+import zerobase.com.ecommerce.exception.type.ErrorCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,20 +29,25 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
-    private final ProductFindService productFindService;
 
     //장바구니 등록
     @Override
     public CartDto register(CartDto cartDto) {
-        // 로그인 여부 확인
-        userFindService.UserLoginException(cartDto.getUserId());
+        // 현재 로그인된 사용자 정보 가져오기
+        SecurityUtil.UserInfo userInfo = SecurityUtil.getCurrentUserInfo();
+        String currentUserId = userInfo.username();
 
-        // 유저 조회
-        UserEntity user = userFindService.findUserByIdOrThrow(cartDto.getUserId());
+        // 입력된 userId와 현재 로그인된 사용자 정보가 일치하는지 확인
+        if (!currentUserId.equals(cartDto.getUserId())) {
+            throw new CommerceException(ErrorCode.INVALID_REQUEST);
+        }
 
-        // 상품 조회
+        // 사용자 ID 확인
+        UserEntity user = userFindService.findUserByIdOrThrow(currentUserId);
+
+        // 상품 id 가져오기
         ProductsEntity product = productRepository.findById(cartDto.getProduct())
-                .orElseThrow(() -> new CommerceException("해당 상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CommerceException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // 이미 해당 유저가 해당 상품을 장바구니에 담았는지 확인
         Optional<CartEntity> existingCart = cartRepository.findByUserId_UserIdAndProduct_Id(
@@ -93,7 +99,7 @@ public class CartServiceImpl implements CartService {
     public void delete(Long id) {
         // 장바구니 항목 존재 여부 확인
         if (!cartRepository.existsById(id)) {
-            throw new IllegalArgumentException("해당 장바구니 항목이 존재하지 않습니다.");
+            throw new CommerceException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
 
         cartRepository.deleteById(id);

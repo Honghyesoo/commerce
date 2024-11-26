@@ -9,6 +9,7 @@ import zerobase.com.ecommerce.domain.constant.Role;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductUpdateDto {
+    private Long id;
     private String userId;
     private String product;
     private String productImg;

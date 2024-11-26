@@ -26,18 +26,10 @@ public class ProductController {
 
     //상품 삭제
     @DeleteMapping("delete")
-    public ResponseEntity<String> delete(@RequestParam(name = "userId") String userId,
-                                         @RequestParam(name = "product") String product) {
-        try {
-            boolean result = productService.delete(userId, product);
-            if (result) {
-                return ResponseEntity.ok("Success");
-            } else {
-                return ResponseEntity.badRequest().body("fail");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("오류가 발생했습니다: " + e.getMessage());
-        }
+    public ResponseEntity<String> delete(@RequestParam(name = "id") Long id,
+                                         @RequestParam(name = "userId") String userId) {
+        productService.delete(userId, id); // 예외가 발생하면 자동으로 상위 예외 핸들러로 전달
+        return ResponseEntity.ok("Success");
     }
 
     //상품 수정

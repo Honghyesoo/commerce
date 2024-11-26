@@ -38,11 +38,12 @@ import zerobase.com.ecommerce.domain.user.entity.UserEntity;
     public CartDto toCartListDto(CartEntity cart) {
         CartDto dto = new CartDto();
 
-        // CartEntity에서 필요한 필드 값 가져와서 CartDto에 설정
         dto.setId(cart.getId());
-        dto.setUserId(cart.getUserId().getUserId());  // UserId에서 userId를 가져옴
-        dto.setProduct(cart.getProduct().getId());  // ProductsEntity에서 상품명을 가져옴
-        dto.setPrice(cart.getPrice());  // 상품 가격 설정
+        dto.setUserId(cart.getUserId().getUserId());
+        dto.setProduct(cart.getProduct().getId());
+        dto.setQuantity(cart.getQuantity());
+        dto.setPrice(cart.getPrice());
+        dto.setTotalPrice(cart.getTotalPrice());
 
         return dto;
     }

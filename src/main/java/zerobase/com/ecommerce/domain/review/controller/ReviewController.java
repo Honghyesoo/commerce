@@ -7,12 +7,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import zerobase.com.ecommerce.domain.review.dto.DeleteDto;
-import zerobase.com.ecommerce.domain.review.dto.RegisterDto;
-import zerobase.com.ecommerce.domain.review.dto.UpdateDto;
+import zerobase.com.ecommerce.domain.review.dto.OrderRegisterDto;
+import zerobase.com.ecommerce.domain.review.dto.OrderUpdateDto;
 import zerobase.com.ecommerce.domain.review.service.ReviewService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,23 +19,23 @@ public class ReviewController {
 
     //리뷰등록
     @PutMapping("register")
-    public ResponseEntity<RegisterDto> register(@RequestBody RegisterDto registerDto){
-        return ResponseEntity.ok().body(reviewService.register(registerDto));
+    public ResponseEntity<OrderRegisterDto> register(@RequestBody OrderRegisterDto orderRegisterDto){
+        return ResponseEntity.ok().body(reviewService.register(orderRegisterDto));
     }
 
     //리뷰목록
     @GetMapping("list")
-    public  ResponseEntity<Page<RegisterDto>> list(@RequestParam(name = "product") String product,
-                                                   @PageableDefault(size = 10, sort = "id"
-                                                           , direction = Sort.Direction.DESC)
-                                                   Pageable pageable){
+    public  ResponseEntity<Page<OrderRegisterDto>> list(
+            @RequestParam(name = "product") String product,
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ){
         return  ResponseEntity.ok().body(reviewService.list(product, pageable));
     }
 
     //리뷰 수정
     @PutMapping("update")
-    public ResponseEntity<UpdateDto> update(@RequestBody UpdateDto updateDto){
-        return ResponseEntity.ok().body(reviewService.update(updateDto));
+    public ResponseEntity<OrderUpdateDto> update(@RequestBody OrderUpdateDto orderUpdateDto){
+        return ResponseEntity.ok().body(reviewService.update(orderUpdateDto));
     }
 
     //리뷰삭제

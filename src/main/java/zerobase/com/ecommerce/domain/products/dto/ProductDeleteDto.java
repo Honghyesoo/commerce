@@ -7,7 +7,7 @@ import zerobase.com.ecommerce.domain.constant.Role;
 @Getter
 @Setter
 public class ProductDeleteDto {
+    private Long id;
     private String userId;
-    private String product;
     private Role role;
 }

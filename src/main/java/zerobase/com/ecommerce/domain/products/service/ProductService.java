@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductService {
     ProductRegisterDto register(ProductRegisterDto productRegisterDto);
 
-    boolean delete(String userId, String product);
+    boolean delete(String userId, Long id);
 
     ProductUpdateDto update(ProductUpdateDto updateDto);
 

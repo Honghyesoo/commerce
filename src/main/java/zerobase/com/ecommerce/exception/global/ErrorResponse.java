@@ -1,28 +1,20 @@
 package zerobase.com.ecommerce.exception.global;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.http.HttpStatus;
+import zerobase.com.ecommerce.exception.type.ErrorCode;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@AllArgsConstructor
 public class ErrorResponse {
-    private final LocalDateTime timestamp;
-    private final int status;
-    private final String error;
+    private final HttpStatus status;
     private final String message;
-    private final String path;
 
-    public static ErrorResponse of(HttpStatus status, String message, String path) {
-        return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .error(status.getReasonPhrase())
-                .message(message)
-                .path(path)
-                .build();
+    public ErrorResponse(ErrorCode errorCode, String message) {
+        this.status = errorCode.getStatus();
+        this.message = message;
     }
 }
 

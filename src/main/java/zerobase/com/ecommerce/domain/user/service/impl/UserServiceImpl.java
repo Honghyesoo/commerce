@@ -2,13 +2,11 @@ package zerobase.com.ecommerce.domain.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase.com.ecommerce.components.MailComponents;
 import zerobase.com.ecommerce.domain.constant.Status;
-import zerobase.com.ecommerce.domain.user.service.UserFindService;
 import zerobase.com.ecommerce.domain.token.TokenProvider;
 import zerobase.com.ecommerce.domain.user.dto.*;
 import zerobase.com.ecommerce.domain.user.email.entity.EmailEntity;
@@ -16,12 +14,17 @@ import zerobase.com.ecommerce.domain.user.email.repository.EmailRepository;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 import zerobase.com.ecommerce.domain.user.mapper.UserMapper;
 import zerobase.com.ecommerce.domain.user.repository.UserRepository;
+import zerobase.com.ecommerce.domain.user.service.UserFindService;
 import zerobase.com.ecommerce.domain.user.service.UserService;
 import zerobase.com.ecommerce.exception.global.CommerceException;
+import zerobase.com.ecommerce.exception.type.ErrorCode;
+
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import static zerobase.com.ecommerce.exception.type.ErrorCode.USER_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
                     : "이미 존재하는 아이디 입니다.";
 
             log.info(message);
-            throw new CommerceException(message, HttpStatus.BAD_REQUEST);
+            throw new CommerceException(USER_NOT_FOUND);
         });
 
         // DTO -> Entity 변환 및 저장
@@ -106,23 +109,26 @@ public class UserServiceImpl implements UserService {
     //로그인
     @Override
     public LoginDto login(LoginDto loginDto) {
+        log.info("서비스 + {}" ,loginDto.getUserId());
         // 1. 사용자 ID 여부
         UserEntity userId = userFindService.findUserByIdOrThrow(loginDto.getUserId());
 
-        // 2.비밀번호 확인
-        if (!passwordEncoder.matches(loginDto.getPassword(), userId.getPassword())){
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        log.info("서비스 유저아이디 + {}" ,userId.getUserId());
+
+        // 2. 비밀번호 확인
+        if (!passwordEncoder.matches(loginDto.getPassword(), userId.getPassword())) {
+            throw new CommerceException(ErrorCode.PASSWORD_MISMATCH);
         }
 
-        // 3.사용자 상태 확인
-        if (userId.getUserStatus() == Status.STOP){
-            throw new RuntimeException("해당 아이디가 탈퇴한 회원이거나 정지된 회원입니다");
+        // 3. 사용자 상태 확인
+        if (userId.getUserStatus() == Status.STOP) {
+            throw new CommerceException(ErrorCode.USER_STATUS_STOP);
         }
 
-        //4. 이메일 인증 확인
+        // 4. 이메일 인증 확인
         EmailEntity emailAuth = emailRepository.findByEmailEmail(userId.getEmail());
-        if (!emailAuth.isEmailAuthYn()){
-            throw new RuntimeException("가입하신 이메일로 인증을 완료해주세요.");
+        if (!emailAuth.isEmailAuthYn()) {
+            throw new CommerceException(ErrorCode.EMAIL_NOT_AUTHENTICATED);
         }
 
         // 5.로그인 성공 처리
@@ -138,10 +144,9 @@ public class UserServiceImpl implements UserService {
         //사용자 ID 여부
         UserEntity userId = userFindService.findUserByIdOrThrow(rePasswordDto.getUserId());
 
-
         // 2.이메일 검증
         if (!rePasswordDto.getEmail().equals(userId.getEmail())){
-            throw new RuntimeException("이메일이 일치하지 않습니다.");
+            throw new CommerceException(ErrorCode.EMAIL_NOT_AUTHENTICATED);
         }
 
         // 3.비밀번호 암호화
@@ -179,6 +184,8 @@ public class UserServiceImpl implements UserService {
                 .userId(userEntity.getUserId())
                 .email(userEntity.getEmail())
                 .phone(userEntity.getPhone())
+                .role(userEntity.getRole())
+                .userStatus(userEntity.getUserStatus())
                 .createAt(userEntity.getCreateAt())
                 .build();
     }

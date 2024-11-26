@@ -12,7 +12,8 @@ import zerobase.com.ecommerce.domain.products.repository.ProductRepository;
 import zerobase.com.ecommerce.domain.products.service.ProductFindService;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 import zerobase.com.ecommerce.domain.user.service.UserFindService;
-import zerobase.com.ecommerce.exception.order.OrderException;
+import zerobase.com.ecommerce.exception.global.CommerceException;
+import zerobase.com.ecommerce.exception.type.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +75,8 @@ public class OrderServiceImpl implements OrderService {
         String content = getOrderConfirmationEmailTemplate(order);
         boolean emailSent = mailComponents.sendMail(order.getEmail(), subject, content);
         if (!emailSent) {
-            throw new OrderException("주문 확인 이메일 전송에 실패했습니다.");
+            throw new CommerceException(
+                    ErrorCode.INTERNAL_SERVER_ERROR,"주문 확인 이메일 전송에 실패했습니다.");
         }
     }
 

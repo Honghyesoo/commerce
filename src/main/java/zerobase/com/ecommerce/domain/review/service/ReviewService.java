@@ -2,17 +2,15 @@ package zerobase.com.ecommerce.domain.review.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import zerobase.com.ecommerce.domain.review.dto.RegisterDto;
-import zerobase.com.ecommerce.domain.review.dto.UpdateDto;
-
-import java.util.List;
+import zerobase.com.ecommerce.domain.review.dto.OrderRegisterDto;
+import zerobase.com.ecommerce.domain.review.dto.OrderUpdateDto;
 
 public interface ReviewService {
-    RegisterDto register(RegisterDto registerDto);
+    OrderRegisterDto register(OrderRegisterDto orderRegisterDto);
 
-    Page<RegisterDto> list(String product, Pageable pageable);
+    Page<OrderRegisterDto> list(String product, Pageable pageable);
 
-    UpdateDto update(UpdateDto updateDto);
+    OrderUpdateDto update(OrderUpdateDto orderUpdateDto);
 
     void delete(Long id, String userId);
 

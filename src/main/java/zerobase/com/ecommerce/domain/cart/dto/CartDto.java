@@ -10,7 +10,7 @@ import lombok.*;
 public class CartDto {
     private Long id;
     private String userId;
-    private Long product;  // product를 String에서 Long으로 수정
+    private Long product;
     private int quantity;
     private int price;
     private int totalPrice;

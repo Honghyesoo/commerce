@@ -23,7 +23,7 @@ public class ProductMapper {
     //상점등록 Entity -> Dto
     public ProductRegisterDto toProductDto(ProductsEntity productsEntity){
         return ProductRegisterDto.builder()
-                .userId(productsEntity.getUserId().toString())
+                .userId(productsEntity.getUserId().getUserId())
                 .product(productsEntity.getProduct())
                 .productImg(productsEntity.getProductImg())
                 .productsContents(productsEntity.getProductsContents())
