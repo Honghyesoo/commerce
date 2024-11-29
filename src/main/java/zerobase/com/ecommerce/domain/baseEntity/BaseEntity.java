@@ -1,8 +1,6 @@
 package zerobase.com.ecommerce.domain.baseEntity;
 
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +16,10 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class BaseEntity {
+    @Temporal(value = TemporalType.TIMESTAMP)
     private LocalDateTime createAt;
+
+    @Temporal(value = TemporalType.TIMESTAMP)
     private LocalDateTime updateAt;
 
     private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
