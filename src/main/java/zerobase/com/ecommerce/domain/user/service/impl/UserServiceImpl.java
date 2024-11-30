@@ -138,25 +138,7 @@ public class UserServiceImpl implements UserService {
         return responseDto;
     }
 
-    //비밀번호 재설정
-    @Override
-    public String rePassword(RePasswordDto rePasswordDto) {
-        //사용자 ID 여부
-        UserEntity userId = userFindService.findUserByIdOrThrow(rePasswordDto.getUserId());
 
-        // 2.이메일 검증
-        if (!rePasswordDto.getEmail().equals(userId.getEmail())){
-            throw new CommerceException(ErrorCode.EMAIL_NOT_AUTHENTICATED);
-        }
-
-        // 3.비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(rePasswordDto.getRePassword());
-
-        // 4.비밀번호 저장
-        userId.setPassword(encodedPassword);
-        userRepository.save(userId);
-        return "success";
-    }
     //회원 탈퇴 및 정지
     @Override
     public DeleteDto userDelete(String userId) {
@@ -188,5 +170,46 @@ public class UserServiceImpl implements UserService {
                 .userStatus(userEntity.getUserStatus())
                 .createAt(userEntity.getCreateAt())
                 .build();
+    }
+
+    //내정보 수정
+    @Override
+    public MyInfoDto myPageUpdate(MyInfoDto myInfoDto) {
+        // 사용자 ID 여부 확인
+        UserEntity userEntity = userFindService.findUserByIdOrThrow(myInfoDto.getUserId());
+
+        // 3.비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(myInfoDto.getPassword());
+
+        // 사용자 정보 저장
+        userEntity.setPassword(encodedPassword);
+        userEntity.setEmail(myInfoDto.getEmail());
+        userEntity.setPhone(myInfoDto.getPhone());
+        userEntity.setUserStatus(Status.STOP); // 수정 시 사용자 상태를 STOP으로 변경 (재인증 필요)
+        userRepository.save(userEntity);
+
+        // 기존 이메일 인증 정보 삭제
+        Optional<EmailEntity> existingEmailAuth = emailRepository.findByEmail(userEntity);
+        existingEmailAuth.ifPresent(emailRepository::delete);
+
+        // 새로운 이메일 인증 정보 생성
+        EmailEntity newEmailEntity = new EmailEntity();
+        newEmailEntity.setEmail(userEntity);
+        newEmailEntity.setEmailAuthKey(UUID.randomUUID().toString());
+        newEmailEntity.setEmailAuthYn(false); // 초기값: 인증되지 않음
+        emailRepository.save(newEmailEntity);
+
+        // 인증 메일 발송
+        String subject = "Commerce 이메일 인증 - 내정보 수정";
+        String text = mailComponents.getEmailAuthTemplate(userEntity.getUserId(), newEmailEntity.getEmailAuthKey());
+        boolean sendResult = mailComponents.sendMail(myInfoDto.getEmail(), subject, text);
+
+        if (!sendResult) {
+            log.error("내정보 수정 후 인증 메일 발송 실패");
+            throw new CommerceException(ErrorCode.EMAIL_SEND_FAILED);
+        }
+
+        // 수정된 정보 반환
+        return userMapper.myInfoDto(userEntity);
     }
 }

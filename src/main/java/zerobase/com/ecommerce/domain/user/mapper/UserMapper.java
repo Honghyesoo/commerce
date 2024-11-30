@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import zerobase.com.ecommerce.domain.constant.Role;
 import zerobase.com.ecommerce.domain.constant.Status;
 import zerobase.com.ecommerce.domain.user.dto.LoginDto;
+import zerobase.com.ecommerce.domain.user.dto.MyInfoDto;
 import zerobase.com.ecommerce.domain.user.dto.RegisterDto;
 import zerobase.com.ecommerce.domain.user.entity.UserEntity;
 
@@ -46,6 +47,19 @@ public class UserMapper {
         return LoginDto.builder()
                 .userId(entity.getUserId())
                 .role(entity.getRole())
+                .build();
+    }
+
+    // 내정보수정 Entity ->Dto
+    public MyInfoDto myInfoDto(UserEntity userEntity){
+        return MyInfoDto.builder()
+                .userId(userEntity.getUserId())
+                .password(userEntity.getPassword())
+                .email(userEntity.getEmail())
+                .phone(userEntity.getPhone())
+                .role(userEntity.getRole())
+                .userStatus(userEntity.getUserStatus())
+                .createAt(userEntity.getCreateAt())
                 .build();
     }
 }

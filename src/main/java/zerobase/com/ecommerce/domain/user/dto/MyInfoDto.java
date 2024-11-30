@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MyInfoDto {
     private String userId;
+    private String password;
     private String email;
     private String phone;
     private Role role;

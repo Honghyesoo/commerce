@@ -9,9 +9,9 @@ public interface UserService {
 
     LoginDto login(LoginDto loginDto);
 
-    String rePassword(RePasswordDto rePasswordDto);
-
     DeleteDto userDelete(String userId);
 
     MyInfoDto myInfo(String userId);
+
+    MyInfoDto myPageUpdate(MyInfoDto myInfoDto);
 }

@@ -14,8 +14,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<ProductsEntity,Long> {
    Optional<ProductsEntity> findByProduct(String product);
 
-   ProductsEntity findByUserId_UserId(String userId);
-
    // 상품명 또는 상품소개에서 키워드 검색
    @Query("SELECT p FROM ProductsEntity p " +
            "WHERE p.product LIKE %:keyword% " +

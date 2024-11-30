@@ -49,12 +49,6 @@ public class UserController {
         LoginDto responseDto = userService.login(loginDto);
         return ResponseEntity.ok(responseDto);
     }
-    //비밀번호 재설정
-    @PostMapping("repassword")
-    public ResponseEntity<String> rePassword(@RequestBody RePasswordDto rePasswordDto){
-        return ResponseEntity.ok().body(userService.rePassword(rePasswordDto));
-    }
-
     //회원 탈퇴 및 정지
     @DeleteMapping("delete")
     public ResponseEntity<DeleteDto> delete(@RequestParam(name = "userId")
@@ -68,6 +62,10 @@ public class UserController {
         return ResponseEntity.ok().body(userService.myInfo(userId));
     }
 
-
+    //내 정보 수정
+    @PatchMapping("mypageupdate")
+    public ResponseEntity<MyInfoDto> myPageUpdate(@RequestBody MyInfoDto myInfoDto){
+        return ResponseEntity.ok().body(userService.myPageUpdate(myInfoDto));
+    }
 
 }
